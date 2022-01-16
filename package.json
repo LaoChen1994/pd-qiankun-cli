@@ -1,0 +1,14 @@
+{
+  "name": "pdqk-cli",
+  "version": "1.0.0",
+  "license": "MIT",
+  "bin": {
+    "pdc": "./bin/create.js"
+  },
+  "dependencies": {
+    "chalk": "^5.0.0",
+    "commander": "^8.3.0",
+    "handlebars": "^4.7.7",
+    "inquirer": "^8.2.0"
+  }
+}
