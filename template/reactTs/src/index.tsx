@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 
+{{#if isQianKun}}
 const isMicroApp = window.__POWERED_BY_QIANKUN__;
 let instance: Element | null = null;
 
@@ -35,3 +36,14 @@ export async function unmount(props: any) {
 
   instance = null;
 }
+
+{{else}}
+function render(props: any) {
+  ReactDOM.render(
+    <App />,
+    document.querySelector("#app")
+  );
+}
+
+render();
+{{/if}}

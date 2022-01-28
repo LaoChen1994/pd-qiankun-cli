@@ -41,11 +41,18 @@ const config: webpack.Configuration = {
     ],
   },
   cache: true,
+  {{#if isQianKun}}
   output: {
     path: path.resolve(__dirname, "../dist"),
-    library: "ReactMicroApp",
+    library: "{{ name }}",
     libraryTarget: "umd",
-  },
+  }
+  {{else}}
+  output: {
+    path: path.resolve(__dirname, "../dist"),
+    filename: "[name].js"
+  }
+  {{/if}}
 };
 
 export default config;

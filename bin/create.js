@@ -4,9 +4,9 @@ var inquirer = require("inquirer");
 var path = require("path");
 var fs = require("fs");
 var handler = require("handlebars");
+var glob = require("glob");
 
 let chalk = null;
-
 const SUPPORT_TEMPLATE = {
   vueTs: "Vue 3 + Typescript",
   vueTsx: "Vue 3 + TSX",
@@ -16,6 +16,11 @@ const SUPPORT_TEMPLATE = {
 const SUPPORT_TYPE = {
   Qiankun: "Qian kun Spa",
   Original: "Spa 模板",
+};
+
+const RENDER_FACTORY = {
+  react: renderReactTemplate,
+  vue: renderVueTemplate,
 };
 
 function genPromotItem(name, message, type = "input", opts = {}) {
@@ -71,7 +76,7 @@ async function initParams() {
         value: item,
       })),
     }),
-    type: genPromotItem("template", "请选择子应用模板", "list", {
+    type: genPromotItem("type", "请选择子应用模板", "list", {
       choices: Object.keys(SUPPORT_TYPE).map((item) => ({
         name: SUPPORT_TYPE[item],
         value: item,
@@ -113,16 +118,111 @@ function checkUserParams(opts) {
   return true;
 }
 
-function renderTemplate() {
-  const template = fs
-    .readFileSync(path.resolve(__dirname, "./template.json"))
-    .toString();
-  const rlt = handler.compile(template)({ foo: 123 });
-  console.log(rlt);
+function generator(opts) {
+  const realPath = process.cwd();
+  const renderTypeTemp =
+    opts.template.indexOf("vue") !== -1
+      ? "vue"
+      : opts.template.indexOf("react") !== -1
+      ? "react"
+      : "";
+
+  // @todo 这里需要添加一个判断是否文件夹下面为空的逻辑
+  if (!renderTypeTemp) {
+    notify("fail", "不支持的模板选项");
+    return;
+  }
+
+  RENDER_FACTORY[renderTypeTemp](realPath, opts);
 }
+
+const getTemplateFiles = (templatePath) => {
+  const tempConfigJSON =
+    fs.readFileSync(path.resolve(templatePath, "template.json")).toString() ||
+    "{}";
+
+  const { template } = JSON.parse(tempConfigJSON);
+
+  return template || [];
+};
+
+const createDir = (path) => fs.mkdirSync(path);
+
+const globalTemplateByOpts = (
+  opts,
+  handler = {
+    dirHandler: null,
+    fileHandler: null,
+  }
+) => {
+  const { template: templateType } = opts;
+  const templatePath = path.resolve(__dirname, `../template/${templateType}`);
+  const { dirHandler, fileHandler } = handler;
+
+  return new Promise((res, rej) => {
+    glob(templatePath + "/**/*", {}, (err, files) => {
+      const fileList = [];
+      const dirList = [];
+
+      if (err) rej(err);
+
+      files.forEach((filePath) => {
+        const stat = fs.statSync(filePath);
+        const relativePath = filePath.split(templateType)[1].slice(1);
+
+        if (stat.isDirectory()) {
+          dirList.push(relativePath);
+          if (dirHandler) dirHandler(relativePath);
+        } else {
+          fileList.push(relativePath);
+          if (fileHandler) fileHandler(relativePath);
+        }
+      });
+
+      res({ fileList, dirList });
+    });
+  });
+};
+
+async function renderReactTemplate(genPath, opts) {
+  const { template: templateType } = opts;
+  const templatePath = path.resolve(__dirname, `../template/${templateType}`);
+  const template = getTemplateFiles(templatePath);
+
+  const { fileList } = await globalTemplateByOpts(opts, {
+    dirHandler: (relativePath) => createDir(path.join(genPath, relativePath)),
+  });
+
+  for (let index = 0; index < fileList.length; index++) {
+    const relativePath = fileList[index];
+    const genAbsolutePath = path.join(genPath, relativePath);
+    const tempAbsolutePath = path.join(templatePath, relativePath);
+
+    if (relativePath.indexOf("template.json") !== -1) {
+      continue;
+    }
+
+    if (template.includes(relativePath)) {
+      const template = fs.readFileSync(tempAbsolutePath).toString();
+
+      const rlt = handler.compile(template)({
+        ...opts,
+        isQiankun: opts.type === SUPPORT_TYPE.Qiankun,
+      });
+
+      fs.writeFileSync(genAbsolutePath, rlt);
+    } else {
+      const rs = fs.createReadStream(tempAbsolutePath);
+      const ws = fs.createWriteStream(genAbsolutePath);
+      rs.pipe(ws);
+    }
+  }
+}
+
+function renderVueTemplate(genPath, opts) {}
 
 (async function () {
   const opts = await initParams();
   if (!checkUserParams(opts)) return;
-  renderTemplate();
+  generator(opts);
 })();
