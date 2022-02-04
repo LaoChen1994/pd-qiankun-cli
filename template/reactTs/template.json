@@ -2,7 +2,6 @@
   "template": [
     "package.json",
     "webpack/webpack.common.ts",
-    "src/App.tsx",
     "src/index.tsx"
   ]
 }
