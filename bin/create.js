@@ -8,7 +8,7 @@ var glob = require("glob");
 
 let chalk = null;
 const SUPPORT_TEMPLATE = {
-  vue: "Vue 3",
+  vue3: "Vue 3",
   vueTsx: "Vue 3 + TSX",
   reactTs: "React + TS",
 };
@@ -16,11 +16,6 @@ const SUPPORT_TEMPLATE = {
 const SUPPORT_TYPE = {
   Qiankun: "Qian kun Spa",
   Original: "Spa 模板",
-};
-
-const RENDER_FACTORY = {
-  react: renderReactTemplate,
-  vue: renderVueTemplate,
 };
 
 function genPromotItem(name, message, type = "input", opts = {}) {
@@ -105,8 +100,6 @@ function checkUserParams(opts) {
     return;
   }
 
-  console.log(opts);
-
   if (!opts.template) {
     notify("fail", "选择模板");
     return;
@@ -133,7 +126,7 @@ function generator(opts) {
     return;
   }
 
-  RENDER_FACTORY[renderTypeTemp](realPath, opts);
+  RenderTool(realPath, opts);
 }
 
 const getTemplateFiles = (templatePath) => {
@@ -184,7 +177,7 @@ const globalTemplateByOpts = (
   });
 };
 
-async function renderReactTemplate(genPath, opts) {
+async function RenderTool(genPath, opts) {
   const { template: templateType } = opts;
   const templatePath = path.resolve(__dirname, `../template/${templateType}`);
   const template = getTemplateFiles(templatePath);
@@ -212,6 +205,8 @@ async function renderReactTemplate(genPath, opts) {
 
       fs.writeFileSync(genAbsolutePath, rlt);
     } else {
+      if (relativePath.includes("App")) {
+      }
       const rs = fs.createReadStream(tempAbsolutePath);
       const ws = fs.createWriteStream(genAbsolutePath);
       rs.pipe(ws);
@@ -219,10 +214,9 @@ async function renderReactTemplate(genPath, opts) {
   }
 }
 
-function renderVueTemplate(genPath, opts) {}
-
 (async function () {
   const opts = await initParams();
   if (!checkUserParams(opts)) return;
-  generator(opts);
+  await generator(opts);
+  notify("success", "模板生成成功！")
 })();
