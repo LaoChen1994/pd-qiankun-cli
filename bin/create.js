@@ -9,7 +9,7 @@ var glob = require("glob");
 let chalk = null;
 const SUPPORT_TEMPLATE = {
   vue3: "Vue 3",
-  vueTsx: "Vue 3 + TSX",
+  // vueTsx: "Vue 3 + TSX",
   reactTs: "React + TS",
 };
 

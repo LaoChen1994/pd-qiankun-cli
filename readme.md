@@ -1,12 +1,8 @@
 # pd-qiankun-cli
 
-
-
 ## 介绍
 
-用于生成常用的一些简单的框架页面的脚手架，继承了SPA和Qiankun SPA的模式
-
-
+用于生成常用的一些简单的框架页面的脚手架，继承了 SPA 和 Qiankun SPA 的模式
 
 ## 用法
 
@@ -17,11 +13,10 @@ npm install -g pdqk-cli
 yarn global add pdqk-cli
 ```
 
-
-
 ## 目前进度
 
 - [x] React + Typescript
-- [ ] Vue 3 + Typescript
+- [x] Vue 3
 - [ ] Vue 3 + Typescript React
-
+- [ ] Vue Base 基座应用
+- [ ] React Base 基座应用
