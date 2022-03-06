@@ -12,7 +12,7 @@ const config = merge(baseConfig, {
   devtool: "source-map",
   // @ts-ignore
   devServer: {
-    port: 9000,
+    port: {{ port }},
     headers: {
       "Access-Control-Allow-Origin": "*",
     },

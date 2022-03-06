@@ -2,7 +2,7 @@ const path = require("path");
 
 module.exports = {
   devServer: {
-    port: 8080,
+    port: {{ port }},
     disableHostCheck: true,
     headers: {
       "Access-Control-Allow-Origin": "*",

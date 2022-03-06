@@ -60,6 +60,7 @@ async function initParams() {
       "-T, --type <type>",
       "template type (qiankun micro app or original app)"
     )
+    .option("-P --port <number>", "the port of the server is working on")
     .parse(process.argv)
     .opts();
 
@@ -77,6 +78,7 @@ async function initParams() {
         value: item,
       })),
     }),
+    port: genPromotItem("port", "请输入启动服务的端口", "number"),
   };
 
   const optKeys = Object.keys(opts);
@@ -148,7 +150,7 @@ const globalTemplateByOpts = (
     fileHandler: null,
   }
 ) => {
-  const { template: templateType } = opts;
+  const { template: templateType, type: useType } = opts;
   const templatePath = path.resolve(__dirname, `../template/${templateType}`);
   const { dirHandler, fileHandler } = handler;
 
@@ -163,7 +165,8 @@ const globalTemplateByOpts = (
         const stat = fs.statSync(filePath);
         const relativePath = filePath.split(templateType)[1].slice(1);
 
-        if (stat.isDirectory()) {
+        if (useType !== "QianKun" && filePath.includes("public-path")) {
+        } else if (stat.isDirectory()) {
           dirList.push(relativePath);
           if (dirHandler) dirHandler(relativePath);
         } else {
@@ -218,5 +221,5 @@ async function RenderTool(genPath, opts) {
   const opts = await initParams();
   if (!checkUserParams(opts)) return;
   await generator(opts);
-  notify("success", "模板生成成功！")
+  notify("success", "模板生成成功！");
 })();
