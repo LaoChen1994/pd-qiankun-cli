@@ -13,6 +13,8 @@ const SUPPORT_TEMPLATE = {
   reactTs: "React + TS",
 };
 
+const SPA_BLACKLIST = ["public-path", "index.d.ts"];
+
 const SUPPORT_TYPE = {
   Qiankun: "Qian kun Spa",
   Original: "Spa 模板",
@@ -165,7 +167,10 @@ const globalTemplateByOpts = (
         const stat = fs.statSync(filePath);
         const relativePath = filePath.split(templateType)[1].slice(1);
 
-        if (useType !== "QianKun" && filePath.includes("public-path")) {
+        if (
+          useType !== "QianKun" &&
+          SPA_BLACKLIST.some((file) => filePath.includes(file))
+        ) {
         } else if (stat.isDirectory()) {
           dirList.push(relativePath);
           if (dirHandler) dirHandler(relativePath);
