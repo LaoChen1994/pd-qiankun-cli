@@ -36,6 +36,6 @@
   },
   "scripts": {
     "build": "rimraf -rf ./dist/* && npx webpack --config ./webpack/webpack.prod.ts",
-    "serve": "npx webpack serve  --config ./webpack/webpack.dev.ts --no-client-overlay-warnings --open --port 9000"
+    "serve": "npx webpack serve  --config ./webpack/webpack.dev.ts --no-client-overlay-warnings --open --port {{ port }}"
   }
 }
