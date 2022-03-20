@@ -3,6 +3,8 @@ import Components from "./routers";
 
 {{#if isQianKun}}
 const isMicroApp = window.__POWERED_BY_QIANKUN__;
+// @ts-ignore
+__webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__;
 let instance: Element | null = null;
 
 export function render(props: any) {
